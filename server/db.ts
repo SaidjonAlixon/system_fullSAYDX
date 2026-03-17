@@ -5,9 +5,9 @@ import * as schema from "@shared/schema";
 const { Pool } = pg;
 
 function getDatabaseUrl(): string {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
   if (!url || typeof url !== "string" || url.trim() === "") {
-    const msg = "DATABASE_URL must be set. Did you forget to provision a database?";
+    const msg = "DATABASE_URL or DATABASE_PUBLIC_URL must be set. Did you forget to provision a database?";
     console.error("[db]", msg);
     throw new Error(msg);
   }
