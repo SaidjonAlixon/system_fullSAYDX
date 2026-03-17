@@ -578,7 +578,11 @@ export async function generateInvoicePdfPuppeteer(
     }
   } catch (e) { }
 
-  const qrUrl = `https://saydxsystem-production.up.railway.app/verify-invoice/${invoice.verificationToken}`;
+  // QR kod hozirgi sayt domeniga bog'lanadi:
+  // bazaviy URL sifatida serverga berilgan baseUrl yoki PUBLIC_BASE_URL env ishlatiladi.
+  const publicBase =
+    (process.env.PUBLIC_BASE_URL || process.env.FRONTEND_URL || baseUrl || "").replace(/\/+$/, "");
+  const qrUrl = `${publicBase || ""}/verify-invoice/${invoice.verificationToken}`;
   const qrCodeDataUri = await QRCode.toDataURL(qrUrl, {
     margin: 0,
     width: 100,
