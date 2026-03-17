@@ -11,13 +11,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 export async function setupLocalAuth(app: Express): Promise<void> {
   if (!LOCAL_LOGIN) return;
 
-  // Birinchi admin foydalanuvchisini yaratish (mavjud bo'lmasa)
-  const existing = await authStorage.getUserByUsername(ADMIN_USERNAME);
-  if (!existing) {
-    const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-    await authStorage.createOrUpdateLocalUser(ADMIN_USERNAME, hash, "Admin", "User");
-    console.log(`[localAuth] Default admin yaratildi: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD}`);
-  }
+  // Admin creds env'dan boshqariladi: username/parol o'zgarsa restart/deployda yangilanadi.
+  // (Parolni logga chiqarmaymiz.)
+  const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  await authStorage.createOrUpdateLocalUser(ADMIN_USERNAME, hash, "Admin", "User");
+  console.log(`[localAuth] Admin credentials synced for username='${ADMIN_USERNAME}'.`);
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {

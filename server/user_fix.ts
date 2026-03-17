@@ -1,34 +1,21 @@
 import bcrypt from "bcrypt";
-import { db } from "./db";
-import { users } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { authStorage } from "./replit_integrations/auth/storage";
+import { isLocalLogin } from "./replit_integrations/auth/localAuth";
 
 export async function updateAdminPassword() {
-  const username = "admin";
-  const newPassword = "AlixonSAYDX";
-
-  console.log(`[user_fix] Updating password for user: ${username}...`);
-
   try {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-
-    if (!user) {
-      console.error(`[user_fix] User '${username}' not found. Cannot update password.`);
+    if (!isLocalLogin()) {
       return;
     }
 
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    const username = (process.env.ADMIN_USERNAME || "admin").trim();
+    const password = process.env.ADMIN_PASSWORD || "admin123";
+    if (!username || !password) return;
 
-    await db.update(users)
-      .set({ 
-        passwordHash,
-        updatedAt: new Date() 
-      })
-      .where(eq(users.username, username));
-
-    console.log(`[user_fix] Password for '${username}' successfully updated to: ${newPassword}`);
+    const passwordHash = await bcrypt.hash(password, 10);
+    await authStorage.createOrUpdateLocalUser(username, passwordHash, "Admin", "User");
+    console.log(`[user_fix] Admin credentials synced for username='${username}'.`);
   } catch (error) {
-    console.error(`[user_fix] Failed to update password for '${username}':`, error);
+    console.error("[user_fix] Failed to sync admin credentials:", error);
   }
 }
