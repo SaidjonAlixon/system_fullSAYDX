@@ -142,7 +142,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 min-h-0 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
         {navItems.map((item) => {
           const isActive =
             item.path === "/projects"
@@ -167,7 +167,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-white/5 shrink-0">
         <div className="flex items-center gap-2 mb-4">
           {/* Notification Bell — visible to everyone */}
           <Popover open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
