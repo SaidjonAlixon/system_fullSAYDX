@@ -11,9 +11,13 @@ import { setupLocalAuth, isLocalLogin } from "./localAuth";
 
 const getOidcConfig = memoize(
   async () => {
+    const replId = process.env.REPL_ID;
+    if (!replId && !isLocalLogin()) {
+      throw new Error("REPL_ID must be set for Replit OIDC authentication.");
+    }
     return await client.discovery(
       new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
+      replId || "placeholder-for-local-login"
     );
   },
   { maxAge: 3600 * 1000 }
@@ -28,8 +32,9 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  const sessionSecret = process.env.SESSION_SECRET || "saydx_default_fallback_secret_not_for_prod";
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: sessionSecret,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
