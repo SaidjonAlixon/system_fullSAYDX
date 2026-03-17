@@ -50,5 +50,6 @@ export async function setupLocalAuth(app: Express): Promise<void> {
 }
 
 export function isLocalLogin(): boolean {
-  return LOCAL_LOGIN;
+  const val = String(process.env.LOCAL_LOGIN || "").toLowerCase().trim();
+  return val === "true" || val === "1" || val === "yes";
 }
